@@ -5,6 +5,7 @@
   cmake,
   clang,
   makeWrapper,
+  ffmpeg-headless,
   libdrm,
   libgbm,
   libva,
@@ -25,7 +26,7 @@ rustPlatform.buildRustPackage {
 
   src = lib.cleanSource ../..;
 
-  cargoHash = "sha256-8eC1bDjRlOADLZtuOALdrCD/q+9hxSlzI5ISj5xQ954=";
+  cargoHash = "sha256-Yl+Id/qsS5nvHgoDaBELbSiBV/MzrWft7MXn/1Jr618=";
 
   nativeBuildInputs = [
     pkg-config
@@ -35,7 +36,11 @@ rustPlatform.buildRustPackage {
     rustPlatform.bindgenHook
   ];
 
+  # NVENC is loaded from the NVIDIA driver at runtime; without one, auto falls back.
+  buildFeatures = [ "nvenc" ];
+
   buildInputs = [
+    ffmpeg-headless
     libdrm
     libgbm
     libva

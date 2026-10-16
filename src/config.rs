@@ -152,7 +152,7 @@ struct Args {
     #[arg(long)]
     audio_mode: Option<String>,
 
-    /// H.264 encoder backend: "auto" (default), "software", or "vaapi"
+    /// H.264 encoder backend: "auto" (default), "software", "vaapi", or "nvenc"
     #[arg(long)]
     h264_backend: Option<String>,
 
@@ -617,8 +617,9 @@ fn parse_h264_backend_policy(s: &str) -> anyhow::Result<H264BackendPolicy> {
         "auto" => Ok(H264BackendPolicy::Auto),
         "software" => Ok(H264BackendPolicy::Software),
         "vaapi" => Ok(H264BackendPolicy::Vaapi),
+        "nvenc" => Ok(H264BackendPolicy::Nvenc),
         other => anyhow::bail!(
-            "unknown H.264 backend '{}', expected 'auto', 'software', or 'vaapi'",
+            "unknown H.264 backend '{}', expected 'auto', 'software', 'vaapi', or 'nvenc'",
             other
         ),
     }
@@ -1011,6 +1012,10 @@ mod tests {
         assert_eq!(
             parse_h264_backend_policy("vaapi").unwrap(),
             H264BackendPolicy::Vaapi
+        );
+        assert_eq!(
+            parse_h264_backend_policy("nvenc").unwrap(),
+            H264BackendPolicy::Nvenc
         );
         assert!(parse_h264_backend_policy("hardware").is_err());
     }

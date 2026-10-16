@@ -5,6 +5,8 @@ mod clearcodec;
 mod factory;
 mod frame;
 mod h264;
+#[cfg(feature = "nvenc")]
+mod nvenc;
 mod rdpegfx;
 mod shared;
 #[cfg(feature = "vaapi")]

@@ -263,7 +263,7 @@ impl H264Encoder {
     }
 }
 
-fn convert_bgra_to_yuv420_planes(
+pub(super) fn convert_bgra_to_yuv420_planes(
     width: usize,
     height: usize,
     bgra: &[u8],
@@ -304,7 +304,7 @@ fn convert_bgra_to_yuv420_planes(
     .context("BGRA to YUV420 conversion failed")
 }
 
-fn validate_bgra_buffer(width: usize, height: usize, stride: usize, len: usize) -> Result<()> {
+pub(super) fn validate_bgra_buffer(width: usize, height: usize, stride: usize, len: usize) -> Result<()> {
     let minimum_stride = width
         .checked_mul(4)
         .context("BGRA stride calculation overflow")?;

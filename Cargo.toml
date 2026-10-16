@@ -11,11 +11,15 @@ license = "MIT"
 # with inbound file transfer, or --no-default-features to omit both.
 default = ["vaapi", "client-to-server"]
 vaapi = ["dep:libva-sys"]
+# NVIDIA NVENC through FFmpeg's h264_nvenc; needs FFmpeg 8.1 with nvenc at build time.
+nvenc = ["dep:ffmpeg-next"]
 client-to-server = ["dep:fuser"]
 
 [dependencies]
 # VA-API hardware encoding (Intel/AMD)
 libva-sys = { version = "0.1.2", optional = true, features = ["drm"] }
+# NVENC hardware encoding (NVIDIA)
+ffmpeg-next = { version = "8.1", optional = true, default-features = false, features = ["codec", "format"] }
 # RDP server dependencies; pin a known revision for reproducible builds.
 ironrdp-server = { git = "https://github.com/Devolutions/IronRDP.git", rev = "5198cde0f73485f3fbd999ea7c49293c86b80387", features = ["egfx", "helper"] }
 ironrdp-pdu = { git = "https://github.com/Devolutions/IronRDP.git", rev = "5198cde0f73485f3fbd999ea7c49293c86b80387" }
