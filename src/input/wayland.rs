@@ -30,6 +30,10 @@ use super::{keymap, KeyboardLayoutPolicy};
 
 const LAYOUT_LISTENER_POLL_INTERVAL: Duration = Duration::from_millis(500);
 
+/// FreeRDP's ainput channel sends wheel deltas as 16.16 fixed point of the
+/// usual RDP wheel units (120 per detent), so it can carry high-resolution wheels.
+const AINPUT_WHEEL_SCALE: i32 = 0x10000;
+
 /// Everything the input actor thread owns: the Wayland handles for both
 /// virtual devices plus the connection and its event queue. Living on one
 /// thread keeps keyboard and mouse requests in command order and leaves no
@@ -225,7 +229,14 @@ fn emit_mouse_event(
             );
         }
         MouseEvent::Scroll { x, y } => {
-            emit_scroll_event(sink, t, x, y, scroll_residual_h, scroll_residual_v);
+            emit_scroll_event(
+                sink,
+                t,
+                x / AINPUT_WHEEL_SCALE,
+                y / AINPUT_WHEEL_SCALE,
+                scroll_residual_h,
+                scroll_residual_v,
+            );
         }
         MouseEvent::HorizontalScroll { value } => {
             emit_scroll_event(
@@ -1561,7 +1572,13 @@ mod tests {
     fn two_axis_scroll_sends_each_axis_the_units_it_was_given() {
         let sink = RecordingPointerSink::default();
 
-        assert!(emit_one(&sink, MouseEvent::Scroll { x: 120, y: 240 }));
+        assert!(emit_one(
+            &sink,
+            MouseEvent::Scroll {
+                x: 120 * AINPUT_WHEEL_SCALE,
+                y: 240 * AINPUT_WHEEL_SCALE,
+            }
+        ));
 
         // Vertical is inverted (RDP forward = up, Wayland positive = down);
         // horizontal is not (both agree right is positive).
