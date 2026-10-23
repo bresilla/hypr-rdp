@@ -185,6 +185,10 @@ fn emit_mouse_event(
             };
             let (source_x, source_y) = map_rdp_pointer_to_source(&layout, x, y);
             sink.motion_absolute(t, source_x, source_y, layout.output_w, layout.output_h);
+            // Hyprland frames relative motion but not absolute, so clients that wait
+            // for wl_pointer.frame (Blender) see no drag until release; a zero
+            // relative move gets the frame sent.
+            sink.motion(t, 0.0, 0.0);
             sink.frame();
         }
         MouseEvent::Button {
@@ -1529,6 +1533,7 @@ mod tests {
             *sink.0.borrow(),
             [
                 RecordedPointerRequest::MotionAbsolute(7, 1920, 1080, 3840, 2160),
+                RecordedPointerRequest::Motion(7, 0.0, 0.0),
                 RecordedPointerRequest::Frame,
             ]
         );
